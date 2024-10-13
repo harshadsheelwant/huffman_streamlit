@@ -26,7 +26,7 @@ if uploaded_file is not None:
     if st.button("Compress File"):
         try:
             # Calling the C program through subprocess
-            result = subprocess.run(["./compress", file_path], capture_output=True, text=True)
+            result = subprocess.run(["/workspaces/huffman_streamlit/compress.c", file_path], capture_output=True, text=True)
             
             # Check if the compression was successful
             if result.returncode == 0:
