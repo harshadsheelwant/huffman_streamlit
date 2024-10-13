@@ -211,11 +211,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-        FILE *inputFile = fopen(inputFileName, "rb");
-    if (!inputFile) {
-        printf("Unable to open file %s!\n", inputFileName);
-        return;
-        }
+    FILE *inputFile = fopen(inputFileName, "rb");
+if (!inputFile) {
+    printf("Unable to open file %s!\n", inputFileName);
+    return 1;
+} else {
+    printf("Successfully opened file %s.\n", inputFileName);
+}
 
 
     // Compress the input file and write the compressed output
