@@ -94,7 +94,7 @@ void buildMinHeap(struct MinHeap* minHeap) {
         minHeapify(minHeap, i);
 }
 
-// Utility function to check if this node is leaf
+// Utility function to check if this node is a leaf
 int isLeaf(struct MinHeapNode* root) {
     return !(root->left) && !(root->right);
 }
@@ -135,71 +135,85 @@ struct MinHeapNode* buildHuffmanTree(unsigned char data[], int freq[], int size)
     return extractMin(minHeap);
 }
 
-// Function to print huffman codes from the root of Huffman Tree
-void printCodes(struct MinHeapNode* root, int arr[], int top) {
+// Function to generate and write compressed data using Huffman codes
+void writeCompressedData(struct MinHeapNode* root, int arr[], int top, FILE *outputFile) {
     if (root->left) {
         arr[top] = 0;
-        printCodes(root->left, arr, top + 1);
+        writeCompressedData(root->left, arr, top + 1, outputFile);
     }
 
     if (root->right) {
         arr[top] = 1;
-        printCodes(root->right, arr, top + 1);
+        writeCompressedData(root->right, arr, top + 1, outputFile);
     }
 
     if (isLeaf(root)) {
-        printf("%c: ", root->data);
+        // Write the Huffman code for this character
+        fprintf(outputFile, "%c: ", root->data);
         for (int i = 0; i < top; ++i)
-            printf("%d", arr[i]);
-        printf("\n");
+            fprintf(outputFile, "%d", arr[i]);
+        fprintf(outputFile, "\n");
     }
 }
 
-// Function that builds a Huffman Tree and prints codes
-void HuffmanCodes(unsigned char data[], int freq[], int size) {
+// Function that builds a Huffman Tree and writes compressed data to output
+void compressFile(unsigned char data[], int freq[], int size, const char *outputFileName) {
     struct MinHeapNode* root = buildHuffmanTree(data, freq, size);
 
     int arr[MAX_TREE_HT], top = 0;
+    FILE *outputFile = fopen(outputFileName, "w");
 
-    printCodes(root, arr, top);
-}
-
-// Function to read file data and calculate frequencies
-void calculateFrequencies(FILE *file, int freq[], unsigned char *data) {
-    int i = 0;
-    unsigned char ch;
-
-    while ((ch = fgetc(file)) != EOF) {
-        freq[ch]++;
-        data[i++] = ch;
+    if (outputFile == NULL) {
+        printf("Unable to create output file!\n");
+        return;
     }
+
+    // Write the compressed codes to the output file
+    writeCompressedData(root, arr, top, outputFile);
+    fclose(outputFile);
 }
 
-int main() {
+// Function to read the input file, calculate frequencies, and trigger compression
+void huffmanCompressFile(const char *inputFileName, const char *outputFileName) {
     unsigned char data[256];
     int freq[256] = {0};
     int size = 0;
 
     // Open the file to be compressed
-    FILE *inputFile = fopen("input.txt", "rb");
+    FILE *inputFile = fopen(inputFileName, "rb");
 
     if (!inputFile) {
-        printf("Unable to open file!\n");
-        return -1;
+        printf("Unable to open file %s!\n", inputFileName);
+        return;
     }
 
-    // Calculate frequencies of characters
-    calculateFrequencies(inputFile, freq, data);
+    unsigned char ch;
+    while ((ch = fgetc(inputFile)) != EOF) {
+        freq[ch]++;
+        data[size++] = ch;
+    }
     fclose(inputFile);
 
-    // Find the number of distinct characters
+    // Count only distinct characters
+    int uniqueSize = 0;
     for (int i = 0; i < 256; ++i) {
         if (freq[i] > 0)
-            size++;
+            uniqueSize++;
     }
 
-    // Build Huffman Tree and print codes
-    HuffmanCodes(data, freq, size);
+    // Compress the file and write the output
+    compressFile(data, freq, uniqueSize, outputFileName);
+}
 
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        printf("Usage: %s <input file> <output file>\n", argv[0]);
+        return 1;
+    }
+
+    // Compress the input file and write the compressed output
+    huffmanCompressFile(argv[1], argv[2]);
+
+    printf("Compression completed. Output written to %s\n", argv[2]);
     return 0;
 }
