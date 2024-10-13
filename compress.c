@@ -211,6 +211,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+        FILE *inputFile = fopen(inputFileName, "rb");
+    if (!inputFile) {
+        printf("Unable to open file %s!\n", inputFileName);
+        return;
+        }
+
+
     // Compress the input file and write the compressed output
     huffmanCompressFile(argv[1], argv[2]);
 

@@ -42,7 +42,7 @@ if uploaded_file is not None:
                 st.download_button(label="Download Compressed File", data=compressed_data, file_name=compressed_file)
             else:
                 st.error("Compression failed!")
-                st.write(result.stderr)  # Output errors, if any
+                st.write(f"Error: {result.stderr}")
         
         except Exception as e:
             st.error(f"An error occurred: {e}")
