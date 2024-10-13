@@ -3,14 +3,14 @@ import subprocess
 import os
 
 # Define supported file types
-SUPPORTED_FILE_TYPES = ["text", "image", "video"]
+SUPPORTED_FILE_TYPES = ["txt", "png", "jpg", "mp4", "avi"]
 
 # Streamlit Interface
 st.title("File Compression using C")
 st.write("Upload a file to compress it using the C compression program.")
 
 # File Upload
-uploaded_file = st.file_uploader("Choose a file", type=["txt", "png", "jpg", "mp4", "avi"])
+uploaded_file = st.file_uploader("Choose a file", type=SUPPORTED_FILE_TYPES)
 
 # Check if file is uploaded
 if uploaded_file is not None:
@@ -25,8 +25,11 @@ if uploaded_file is not None:
     # Run the C compression executable
     if st.button("Compress File"):
         try:
-            # Calling the C program through subprocess
-            result = subprocess.run(["compress", file_path], capture_output=True, text=True)
+            # Assuming compress is already compiled and available in the same directory
+            compressed_file = file_path + ".compressed"  # Output file path
+
+            # Calling the compiled C program (adjust the path to your `compress` executable)
+            result = subprocess.run(["./compress", file_path, compressed_file], capture_output=True, text=True)
             
             # Check if the compression was successful
             if result.returncode == 0:
@@ -34,7 +37,6 @@ if uploaded_file is not None:
                 st.write(result.stdout)  # Output from the C program
                 
                 # Provide a download link for the compressed file
-                compressed_file = file_path + ".compressed"  # Assuming this is the output file
                 with open(compressed_file, "rb") as f:
                     compressed_data = f.read()
                 st.download_button(label="Download Compressed File", data=compressed_data, file_name=compressed_file)
