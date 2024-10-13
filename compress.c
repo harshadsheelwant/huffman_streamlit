@@ -40,7 +40,6 @@ struct MinHeap* createMinHeap(unsigned capacity) {
 void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b) {
     struct MinHeapNode* t = *a;
     *a = *b;
-    *b = t;
 }
 
 // Standard minHeapify function
@@ -188,21 +187,17 @@ void huffmanCompressFile(const char *inputFileName, const char *outputFileName) 
     }
 
     unsigned char ch;
+    // Only consider unique characters
     while ((ch = fgetc(inputFile)) != EOF) {
+        if (freq[ch] == 0) {
+            data[size++] = ch;
+        }
         freq[ch]++;
-        data[size++] = ch;
     }
     fclose(inputFile);
 
-    // Count only distinct characters
-    int uniqueSize = 0;
-    for (int i = 0; i < 256; ++i) {
-        if (freq[i] > 0)
-            uniqueSize++;
-    }
-
     // Compress the file and write the output
-    compressFile(data, freq, uniqueSize, outputFileName);
+    compressFile(data, freq, size, outputFileName);
 }
 
 int main(int argc, char *argv[]) {
@@ -210,15 +205,6 @@ int main(int argc, char *argv[]) {
         printf("Usage: %s <input file> <output file>\n", argv[0]);
         return 1;
     }
-
-    FILE *inputFile = fopen(inputFileName, "rb");
-if (!inputFile) {
-    printf("Unable to open file %s!\n", inputFileName);
-    return 1;
-} else {
-    printf("Successfully opened file %s.\n", inputFileName);
-}
-
 
     // Compress the input file and write the compressed output
     huffmanCompressFile(argv[1], argv[2]);
